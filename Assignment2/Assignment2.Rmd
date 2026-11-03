@@ -1,0 +1,52 @@
+---
+title: "Technical Analysis, Preliminary Stage"
+author: "Hugo Aragon"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+source("functions.R")
+window <- 20
+```
+
+## Load the data
+Prices come from Yahoo Finance for the symbols in portfolio.txt, covering the last year.
+
+```{r load}
+stocks <- load_stock_data("portfolio.txt")
+names(stocks)
+```
+
+## Latest prices
+The last five rows for each stock.
+
+```{r show, results='asis'}
+show_data(stocks, n = 5)
+```
+
+## Statistics
+Mean, median, mode, standard deviation and the latest 20 day moving average of the closing price. The mode uses prices rounded to the nearest dollar.
+
+```{r stats}
+stats_table <- all_statistics(stocks, window)
+knitr::kable(stats_table, row.names = FALSE)
+```
+
+## Charts
+Closing price with the 20 day moving average.
+
+```{r charts, fig.width=7, fig.height=4}
+for (s in names(stocks)) {
+  plot_stock(stocks[[s]], s, calculate_statistics(stocks[[s]], window)$ma)
+}
+```
+
+Mean closing price by stock.
+
+```{r bar, fig.width=7, fig.height=4}
+barplot(stats_table$Mean, names.arg = stats_table$Symbol,
+        ylab = "Mean close price", col = "steelblue")
+```
